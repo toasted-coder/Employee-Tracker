@@ -18,22 +18,14 @@ const run = () => {
         "Add department",
         "Add role",
         "Add employee",
-        "Update employee",
+        "Update employee role",
         "Exit",
       ],
     })
     .then((answer) => {
       switch (answer.action) {
-        case "Add department":
-          addDepartment();
-          break;
-
-        case "Add role":
-          addRole();
-          break;
-
-        case "Add employee":
-          addEmployee();
+        case "View employees":
+          viewAllEmployees();
           break;
 
         case "View departments":
@@ -44,8 +36,16 @@ const run = () => {
           viewAllRoles();
           break;
 
-        case "View employees":
-          viewAllEmployees();
+        case "Add department":
+          addDepartment();
+          break;
+
+        case "Add role":
+          addRole();
+          break;
+
+        case "Add employee":
+          addEmployee();
           break;
 
         case "Update employee role":
@@ -157,7 +157,7 @@ const addRole = () => {
 const addEmployee = () => {
   connection.query(
     "SELECT id, first_name AS name FROM employees",
-    (err, mngr) => {
+    (err, mngrs) => {
       connection.query("SELECT id, title AS name FROM roles", (err, roles) => {
         inquirer
           .prompt([
@@ -184,7 +184,7 @@ const addEmployee = () => {
               name: "manager",
               type: "list",
               message: `Who is the employee's manager?`,
-              choices: mngr,
+              choices: mngrs,
             },
           ])
           .then((answer) => {
@@ -194,7 +194,7 @@ const addEmployee = () => {
 
             const roleId = rolesIndex[0].id;
 
-            const mngrIndex = mngr.filter((mngr) => {
+            const mngrIndex = mngrs.filter((mngr) => {
               return mngr.name === answer.manager;
             });
 
