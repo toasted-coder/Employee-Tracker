@@ -78,55 +78,9 @@ const viewAllEmployees = () => {
   });
 };
 
-// viewEmpsByMngr function
-const viewEmpsByMngr = () => {
-  connection.query(
-    'SELECT id, CONCAT(first_name, " ", last_name) AS name FROM employee',
-    (err, res) => {
-      inquirer
-        .prompt([
-          {
-            name: "manager",
-            type: "list",
-            message: `Whose supervisees would you like to view?`,
-            choices: res,
-          },
-        ])
-        .then((answer) => {
-          // Manager info
-          const mngrIndex = res.filter((mngr) => {
-            return mngr.name === answer.manager;
-          });
-
-          const mngrChoice = mngrIndex[0].id;
-
-          const query = "SELECT * FROM employee WHERE ?";
-
-          const condit = [{ manager_id: mngrChoice }];
-
-          connection.query(query, condit, (err, res) => {
-            if (res.length) {
-              console.log(`${res.length} employees found!`);
-              res.forEach(({ first_name, last_name, role_id }, i) => {
-                const num = i + 1;
-                console.log(
-                  `${num} || ${first_name} ${last_name} || Role ID: ${role_id}`
-                );
-              });
-              run();
-            } else {
-              console.log(`This employee has no supervisees.`);
-              run();
-            }
-          });
-        });
-    }
-  );
-};
-
 // viewAllDepartments function
 const viewAllDepartments = () => {
-  const query = "SELECT * FROM department";
+  const query = "SELECT * FROM departments";
   connection.query(query, (err, res) => {
     console.log(`${res.length} matches found!`);
     res.forEach(({ name }, i) => {
@@ -139,7 +93,7 @@ const viewAllDepartments = () => {
 
 // viewAllRoles function
 const viewAllRoles = () => {
-  const query = "SELECT * FROM role";
+  const query = "SELECT * FROM roles";
   connection.query(query, (err, res) => {
     console.log(`${res.length} role found!`);
     res.forEach(({ title, salary, department_id }, i) => {
@@ -154,7 +108,7 @@ const viewAllRoles = () => {
 
 // addRole function
 const addRole = () => {
-  connection.query("SELECT * FROM department", (err, res) => {
+  connection.query("SELECT * FROM departments", (err, res) => {
     inquirer
       .prompt([
         {
@@ -183,7 +137,7 @@ const addRole = () => {
 
         const departID = departIndex[0].id;
 
-        const query = "INSERT INTO role SET ?";
+        const query = "INSERT INTO roles SET ?";
 
         const roleInfo = {
           title: answer.title,
@@ -202,9 +156,9 @@ const addRole = () => {
 // addEmployee function
 const addEmployee = () => {
   connection.query(
-    "SELECT id, first_name AS name FROM employee",
+    "SELECT id, first_name AS name FROM employees",
     (err, mngr) => {
-      connection.query("SELECT id, title AS name FROM role", (err, role) => {
+      connection.query("SELECT id, title AS name FROM roles", (err, roles) => {
         inquirer
           .prompt([
             {
@@ -223,7 +177,7 @@ const addEmployee = () => {
               name: "role",
               type: "list",
               message: `What is the employee's role?`,
-              choices: role,
+              choices: roles,
             },
 
             {
@@ -234,11 +188,11 @@ const addEmployee = () => {
             },
           ])
           .then((answer) => {
-            const roleIndex = role.filter((role) => {
+            const rolesIndex = roles.filter((role) => {
               return role.name === answer.role;
             });
 
-            const roleId = roleIndex[0].id;
+            const roleId = rolesIndex[0].id;
 
             const mngrIndex = mngr.filter((mngr) => {
               return mngr.name === answer.manager;
@@ -278,7 +232,7 @@ const addDepartment = () => {
       },
     ])
     .then((answer) => {
-      const query = "INSERT INTO department SET ?";
+      const query = "INSERT INTO departments SET ?";
 
       const departInfo = { name: answer.name };
 
@@ -293,38 +247,38 @@ const addDepartment = () => {
 const updateEmployeeRole = () => {
   connection.query(
     'SELECT id, CONCAT(first_name, " ", last_name) AS name FROM employees',
-    (err, emp) => {
-      connection.query("SELECT id, title AS name FROM roles", (err, role) => {
+    (err, emps) => {
+      connection.query("SELECT id, title AS name FROM roles", (err, roles) => {
         inquirer
           .prompt([
             {
               name: "employee",
               type: "list",
               message: `Which employee's role would you like to update?`,
-              choices: emp,
+              choices: emps,
             },
 
             {
               name: "role",
               type: "list",
               message: `What is this employee's new role?`,
-              choices: role,
+              choices: roles,
             },
           ])
           .then((answer) => {
             // Employee info
-            const empIndex = emp.filter((emp) => {
+            const empIndex = emps.filter((emp) => {
               return emp.name === answer.employee;
             });
 
             const empChoice = empIndex[0].id;
 
             // Roles info
-            const roleIndex = role.filter((role) => {
+            const rolesIndex = roles.filter((role) => {
               return role.name === answer.role;
             });
 
-            const roleChoice = roleIndex[0].id;
+            const roleChoice = rolesIndex[0].id;
 
             connection.query(
               "UPDATE employees SET ? WHERE ?",
