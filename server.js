@@ -65,7 +65,7 @@ const run = () => {
 
 // viewAllEmployees function
 const viewAllEmployees = () => {
-  const query = "SELECT * FROM employee";
+  const query = "SELECT * FROM employees";
   connection.query(query, (err, res) => {
     console.log(`${res.length} employees found!`);
     res.forEach(({ first_name, last_name, role_id, manager_id }, i) => {
@@ -203,7 +203,7 @@ const addRole = () => {
 const addEmployee = () => {
   connection.query(
     "SELECT id, first_name AS name FROM employee",
-    (err, mngrs) => {
+    (err, mngr) => {
       connection.query("SELECT id, title AS name FROM role", (err, role) => {
         inquirer
           .prompt([
@@ -230,17 +230,17 @@ const addEmployee = () => {
               name: "manager",
               type: "list",
               message: `Who is the employee's manager?`,
-              choices: mngrs,
+              choices: mngr,
             },
           ])
           .then((answer) => {
-            const rolesIndex = role.filter((role) => {
+            const roleIndex = role.filter((role) => {
               return role.name === answer.role;
             });
 
-            const roleId = rolesIndex[0].id;
+            const roleId = roleIndex[0].id;
 
-            const mngrIndex = mngrs.filter((mngr) => {
+            const mngrIndex = mngr.filter((mngr) => {
               return mngr.name === answer.manager;
             });
 
@@ -293,15 +293,15 @@ const addDepartment = () => {
 const updateEmployeeRole = () => {
   connection.query(
     'SELECT id, CONCAT(first_name, " ", last_name) AS name FROM employees',
-    (err, emps) => {
-      connection.query("SELECT id, title AS name FROM role", (err, role) => {
+    (err, emp) => {
+      connection.query("SELECT id, title AS name FROM roles", (err, role) => {
         inquirer
           .prompt([
             {
               name: "employee",
               type: "list",
               message: `Which employee's role would you like to update?`,
-              choices: emps,
+              choices: emp,
             },
 
             {
@@ -313,18 +313,18 @@ const updateEmployeeRole = () => {
           ])
           .then((answer) => {
             // Employee info
-            const empIndex = emps.filter((emp) => {
+            const empIndex = emp.filter((emp) => {
               return emp.name === answer.employee;
             });
 
             const empChoice = empIndex[0].id;
 
             // Roles info
-            const rolesIndex = role.filter((role) => {
+            const roleIndex = role.filter((role) => {
               return role.name === answer.role;
             });
 
-            const roleChoice = rolesIndex[0].id;
+            const roleChoice = roleIndex[0].id;
 
             connection.query(
               "UPDATE employees SET ? WHERE ?",
@@ -344,67 +344,6 @@ const updateEmployeeRole = () => {
             );
           });
       });
-    }
-  );
-};
-
-// updateEmployeeMgr function
-const updateEmployeeMgr = () => {
-  connection.query(
-    'SELECT id, CONCAT(first_name, " ", last_name) AS name FROM employees',
-    (err, emps) => {
-      connection.query(
-        'SELECT id, CONCAT(first_name, " ", last_name) AS name FROM employees',
-        (err, mngrs) => {
-          inquirer
-            .prompt([
-              {
-                name: "employee",
-                type: "list",
-                message: `Which employee's manager would you like to update?`,
-                choices: emps,
-              },
-              {
-                name: "manager",
-                type: "list",
-                message: `To whom does this employee now report?`,
-                choices: mngrs,
-              },
-            ])
-            .then((answer) => {
-              // Employee info
-              const empIndex = emps.filter((emp) => {
-                return emp.name === answer.employee;
-              });
-
-              const empChoice = empIndex[0].id;
-
-              // Managers info
-              const mngrIndex = mngrs.filter((mngr) => {
-                return mngr.name === answer.manager;
-              });
-
-              const mngrChoice = mngrIndex[0].id;
-
-              connection.query(
-                "UPDATE employees SET ? WHERE ?",
-                [
-                  {
-                    manager_id: mngrChoice,
-                  },
-                  {
-                    id: empChoice,
-                  },
-                ],
-                (err, res) => {
-                  if (err) throw err;
-                  console.log(`${answer.employee}'s manager has been updated!`);
-                  run();
-                }
-              );
-            });
-        }
-      );
     }
   );
 };

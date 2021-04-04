@@ -4,22 +4,22 @@ CREATE DATABASE employee_db;
 
 USE employee_db;
 
-CREATE TABLE department (
+CREATE TABLE departments (
     `id` INT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(30) NOT NULL,
     PRIMARY KEY (id),
 );
 
-CREATE TABLE role (
+CREATE TABLE roles (
     `id` INT NOT NULL,
     `title` VARCHAR(30) NOT NULL,
     `salary` DECIMAL,
     `department_id` INT,
     PRIMARY KEY(id),
-    FOREIGN KEY (`department_id`) REFERENCES department (`id`),
+    FOREIGN KEY (`department_id`) REFERENCES departments (`id`),
 );
 
-CREATE TABLE employee (
+CREATE TABLE employees (
     `id` VARCHAR(30) INT NOT NULL,
     `first_name` VARCHAR(30) NOT NULL,
     `last_name` VARCHAR(30) NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE employee (
     `manager_id` INT DEFAULT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`role_id`) REFERENCES roles (`id`),
-    FOREIGN KEY (`manager_id`) REFERENCES employee (`id`),
+    FOREIGN KEY (`manager_id`) REFERENCES employees (`id`),
 );
 
 SELECT * FROM employees;
