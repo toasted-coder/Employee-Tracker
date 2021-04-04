@@ -48,8 +48,8 @@ const run = () => {
           viewAllEmployees();
           break;
 
-        case "Update employee":
-          updateEmployee();
+        case "Update employee role":
+          updateEmployeeRole();
           break;
 
         case "Exit":
